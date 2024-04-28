@@ -1,0 +1,70 @@
+####    Makefile-macOS
+###
+###
+#
+#	cd <xxxxx>/hl2_tcp
+# rm -rf build
+# mkdir build
+# cd build
+# make -f ../Makefile-macOS
+
+SRCDIR = ..
+SOURCE = $(SRCDIR)/hl2_tcp.c $(SRCDIR)/hl2_tx.c
+CFLAGS = -Os
+LFLAGS = -lm -lpthread
+
+EXECUTABLE 	= hl2_tcp
+VERSION     = v.1.4.105
+MACOS       = macos12
+
+FOLDER 			= $(EXECUTABLE)-$(VERSION)-$(MACOS)
+DMG					= $(FOLDER).dmg
+PKG					= $(FOLDER).pkg
+
+SIGNID			= "Developer ID Application: Transition Technology Ventures, LLC (6V82P5ET42)"
+INSTALLID		= "Developer ID Installer: Transition Technology Ventures, LLC (6V82P5ET42)"
+
+INSTALL 		= /usr/local/bin
+
+hl2_tcp:			$(SOURCE)
+
+								clang $(SOURCE) $(CFLAGS) $(LFLAGS) \
+								    -target x86_64-apple-$(MACOS) -o $(EXECUTABLE)-x86_64
+
+								clang $(SOURCE) $(CFLAGS) $(LFLAGS) \
+										 -target arm64-apple-$(MACOS)  -o $(EXECUTABLE)-arm64
+
+								lipo -create -output $(EXECUTABLE) $(EXECUTABLE)-x86_64 $(EXECUTABLE)-arm64
+								lipo -archs $(EXECUTABLE)
+								otool -L $(EXECUTABLE)
+
+
+dmg:						$(EXECUTABLE)
+
+								 mkdir $(FOLDER)
+								 cp $(EXECUTABLE) $(FOLDER)
+								 codesign -vf --timestamp --options runtime --sign $(SIGNID) $(FOLDER)/$(EXECUTABLE)
+								 hdiutil create -fs HFS+ -srcfolder $(FOLDER) -volname $(FOLDER) $(FOLDER).dmg
+								 codesign -vf --timestamp --options runtime --sign $(SIGNID) $(DMG)
+								 codesign --verify --verbose $(DMG)
+								 xcrun notarytool submit $(DMG) --keychain-profile "SDR" --wait
+								 spctl -a -t open --context context:primary-signature -v $(DMG)
+								 xcrun stapler staple $(DMG)
+								 xcrun stapler validate $(DMG)
+
+
+pkg:						$(EXECUTABLE)
+
+								 mkdir $(FOLDER)-pkg
+								 cp $(EXECUTABLE)	$(FOLDER)-pkg
+								 codesign -vf --timestamp --options runtime --sign $(SIGNID) $(FOLDER)-pkg/$(EXECUTABLE)
+								 pkgbuild --root ./$(FOLDER)-pkg \
+								 					--identifier $(EXECUTABLE) \
+								 					--install-location $(INSTALL) \
+								 					--sign $(INSTALLID) \
+													$(PKG)
+								pkgutil --check-signature $(PKG)
+								xcrun notarytool submit $(PKG) --keychain-profile "SDR" --wait
+								xcrun stapler staple $(PKG)
+								xcrun stapler validate $(PKG)
+								spctl --assess --verbose --type install $(PKG)
