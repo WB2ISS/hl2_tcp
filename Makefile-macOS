@@ -14,8 +14,9 @@ CFLAGS = -Os
 LFLAGS = -lm -lpthread
 
 EXECUTABLE 	= hl2_tcp
-VERSION     = v.1.4.105
+VERSION     = 1.4.105
 MACOS       = macos12
+PROFILE     = "SDR"
 
 FOLDER 			= $(EXECUTABLE)-$(VERSION)-$(MACOS)
 DMG					= $(FOLDER).dmg
@@ -47,7 +48,7 @@ dmg:						$(EXECUTABLE)
 								 hdiutil create -fs HFS+ -srcfolder $(FOLDER) -volname $(FOLDER) $(FOLDER).dmg
 								 codesign -vf --timestamp --options runtime --sign $(SIGNID) $(DMG)
 								 codesign --verify --verbose $(DMG)
-								 xcrun notarytool submit $(DMG) --keychain-profile "SDR" --wait
+								 xcrun notarytool submit $(DMG) --keychain-profile $(PROFILE) --wait
 								 spctl -a -t open --context context:primary-signature -v $(DMG)
 								 xcrun stapler staple $(DMG)
 								 xcrun stapler validate $(DMG)
@@ -64,7 +65,7 @@ pkg:						$(EXECUTABLE)
 								 					--sign $(INSTALLID) \
 													$(PKG)
 								pkgutil --check-signature $(PKG)
-								xcrun notarytool submit $(PKG) --keychain-profile "SDR" --wait
+								xcrun notarytool submit $(PKG) --keychain-profile $(PROFILE) --wait
 								xcrun stapler staple $(PKG)
 								xcrun stapler validate $(PKG)
 								spctl --assess --verbose --type install $(PKG)
