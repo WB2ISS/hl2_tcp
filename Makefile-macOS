@@ -21,6 +21,7 @@ PROFILE     = "SDR"
 FOLDER 			= $(EXECUTABLE)-$(VERSION)-$(MACOS)
 DMG					= $(FOLDER).dmg
 PKG					= $(FOLDER).pkg
+PKGL				= $(FOLDER)-L.pkg
 
 SIGNID			= "Developer ID Application: Transition Technology Ventures, LLC (6V82P5ET42)"
 INSTALLID		= "Developer ID Installer: Transition Technology Ventures, LLC (6V82P5ET42)"
@@ -63,7 +64,14 @@ pkg:						$(EXECUTABLE)
 								 					--identifier $(EXECUTABLE) \
 								 					--install-location $(INSTALL) \
 								 					--sign $(INSTALLID) \
+													$(PKGL)
+
+								productbuild --package-path $(PKGL) \
+													--sign $(INSTALLID) \
+													--distribution ../distribution.xml \
+													--resources ../ \
 													$(PKG)
+
 								pkgutil --check-signature $(PKG)
 								xcrun notarytool submit $(PKG) --keychain-profile $(PROFILE) --wait
 								xcrun stapler staple $(PKG)
