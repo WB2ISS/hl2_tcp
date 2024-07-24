@@ -8,25 +8,28 @@
 # cd build
 # make -f ../Makefile-macOS
 
-SRCDIR = ..
-SOURCE = $(SRCDIR)/hl2_tcp.c $(SRCDIR)/hl2_tx.c
-CFLAGS = -Os
-LFLAGS = -lm -lpthread
+EXECUTABLE      = hl2_tcp
+VERSION         = 1.4.105
+MACOS           = macos12
+PROFILE         = "SDR"
 
-EXECUTABLE 	= hl2_tcp
-VERSION     = 1.4.105
-MACOS       = macos12
-PROFILE     = "SDR"
+SRCDIR          = ..
+SOURCE          = $(SRCDIR)/hl2_tcp.c $(SRCDIR)/hl2_tx.c
+LICENSE         = $(SRCDIR)/license.rtf
+DISTRIBUTION    = $(SRCDIR)/distribution.xml
+INSTALL         = /usr/local/bin
 
-FOLDER 			= $(EXECUTABLE)-$(VERSION)-$(MACOS)
-DMG					= $(FOLDER).dmg
-PKG					= $(FOLDER).pkg
-PKGL				= $(FOLDER)-L.pkg
+SIGNID          = "Developer ID Application: Transition Technology Ventures, LLC (6V82P5ET42)"
+INSTALLID       = "Developer ID Installer: Transition Technology Ventures, LLC (6V82P5ET42)"
 
-SIGNID			= "Developer ID Application: Transition Technology Ventures, LLC (6V82P5ET42)"
-INSTALLID		= "Developer ID Installer: Transition Technology Ventures, LLC (6V82P5ET42)"
+CFLAGS          = -Os
+LFLAGS          = -lm -lpthread
 
-INSTALL 		= /usr/local/bin
+FOLDER 			    = $(EXECUTABLE)-$(VERSION)-$(MACOS)
+DMG             = $(FOLDER).dmg
+PKG             = $(FOLDER).pkg
+PKGL            = $(FOLDER)-L.pkg
+
 
 hl2_tcp:			$(SOURCE)
 
@@ -43,10 +46,11 @@ hl2_tcp:			$(SOURCE)
 
 dmg:						$(EXECUTABLE)
 
-								 mkdir $(FOLDER)
-								 cp $(EXECUTABLE) $(FOLDER)
-								 codesign -vf --timestamp --options runtime --sign $(SIGNID) $(FOLDER)/$(EXECUTABLE)
-								 hdiutil create -fs HFS+ -srcfolder $(FOLDER) -volname $(FOLDER) $(FOLDER).dmg
+								 mkdir $(FOLDER)-dmg
+								 cp $(EXECUTABLE) $(FOLDER)-dmg
+								 cp $(LICENSE) $(FOLDER)-dmg
+								 codesign -vf --timestamp --options runtime --sign $(SIGNID) $(FOLDER)-dmg/$(EXECUTABLE)
+								 hdiutil create -fs HFS+ -srcfolder $(FOLDER)-dmg -volname $(FOLDER)-dmg $(FOLDER).dmg
 								 codesign -vf --timestamp --options runtime --sign $(SIGNID) $(DMG)
 								 codesign --verify --verbose $(DMG)
 								 xcrun notarytool submit $(DMG) --keychain-profile $(PROFILE) --wait
@@ -68,8 +72,8 @@ pkg:						$(EXECUTABLE)
 
 								productbuild --package-path $(PKGL) \
 													--sign $(INSTALLID) \
-													--distribution ../distribution.xml \
-													--resources ../ \
+													--distribution $(DISTRIBUTION) \
+													--resources $(SRCDIR) \
 													$(PKG)
 
 								pkgutil --check-signature $(PKG)
@@ -77,3 +81,11 @@ pkg:						$(EXECUTABLE)
 								xcrun stapler staple $(PKG)
 								xcrun stapler validate $(PKG)
 								spctl --assess --verbose --type install $(PKG)
+
+
+all:					$(EXECUTABLE) dmg pkg
+
+
+clean:
+
+								rm -rf $(EXECUTABLE) $(EXECUTABLE)-x86_64 $(EXECUTABLE)-arm64 $(FOLDER)-dmg $(DMG) $(FOLDER)-pkg $(PKGL) $(PKG)
