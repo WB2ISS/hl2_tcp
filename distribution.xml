@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <installer-gui-script minSpecVersion="1">
     <pkg-ref id="hl2_tcp"/>
-    <license file="license.rtf" mime-type="application/rtf"/>
+    <readme file="hl2_tcp-license.rtf" mime-type="application/rtf"/>
     <options customize="never" require-scripts="false" hostArchitectures="x86_64,arm64"/>
     <choices-outline>
         <line choice="default">

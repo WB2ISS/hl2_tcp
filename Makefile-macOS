@@ -15,7 +15,7 @@ PROFILE         = "SDR"
 
 SRCDIR          = ..
 SOURCE          = $(SRCDIR)/hl2_tcp.c $(SRCDIR)/hl2_tx.c
-LICENSE         = $(SRCDIR)/license.rtf
+LICENSE         = $(SRCDIR)/$(EXECUTABLE)-license.rtf
 DISTRIBUTION    = $(SRCDIR)/distribution.xml
 INSTALL         = /usr/local/bin
 
@@ -50,7 +50,7 @@ dmg:						$(EXECUTABLE)
 								 cp $(EXECUTABLE) $(FOLDER)-dmg
 								 cp $(LICENSE) $(FOLDER)-dmg
 								 codesign -vf --timestamp --options runtime --sign $(SIGNID) $(FOLDER)-dmg/$(EXECUTABLE)
-								 hdiutil create -fs HFS+ -srcfolder $(FOLDER)-dmg -volname $(FOLDER)-dmg $(FOLDER).dmg
+								 hdiutil create -fs HFS+ -srcfolder $(FOLDER)-dmg -volname $(FOLDER)-dmg $(DMG)
 								 codesign -vf --timestamp --options runtime --sign $(SIGNID) $(DMG)
 								 codesign --verify --verbose $(DMG)
 								 xcrun notarytool submit $(DMG) --keychain-profile $(PROFILE) --wait
