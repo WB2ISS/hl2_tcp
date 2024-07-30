@@ -6,7 +6,7 @@
 # rm -rf build
 # mkdir build
 # cd build
-# make -f ../Makefile-macOS
+# make -f ../Makefile-macOS [hl2_tcp|dmg|pkg|all|clean]
 
 EXECUTABLE      = hl2_tcp
 VERSION         = 1.4.105
