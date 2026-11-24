@@ -1,6 +1,6 @@
 //
 //  hl2_tx.c for hl2_tcp.c
-#define VERSION "v.1.4.105" // 2023-01-05  2020-06-19 01 
+#define VERSION "v.1.4.108"
 //
 
 #define TX_OK
@@ -11,8 +11,8 @@
 #define TX_OFFSET       ( 656.0)	//  default for USB SSB
 static float cw_df  =    TX_OFFSET;	//  synthesized USB IQ offset
 // default Tx power approx 1 mW
-// #define TX_DRIVE	  (15) 	    //  dac drive 0..15 
-#define TX_DRIVE	  ( 3) 	    //  dac drive 0..15 
+// #define TX_DRIVE	  (15) 	    //  dac drive 0..15
+#define TX_DRIVE	  ( 3) 	    //  dac drive 0..15
 float tx_drive      =     TX_DRIVE;
 #define TX_LEVEL	 (512.0)    //  amplitude 16.0 to 32767.0
 float tx_lvl        =     TX_LEVEL;
@@ -76,7 +76,7 @@ extern long random(void);
 
 static long int tx_counter = 0;
 
-void tx_setup() 
+void tx_setup()
 {
     char *addr =  NULL;
     int  sz    =  2;
@@ -96,7 +96,7 @@ void tx_setup()
        int r2 = 0x0fff & random();
        int r0 = r1 - r2;		// triangular -8192 .. 8190
        float r = 1.0 * (float)r0 / (8192.0f);	// -2.0 .. 2.0
-       ditherBuffer[i] = r; // ditherIdx 
+       ditherBuffer[i] = r; // ditherIdx
     }
 
     tx_dph = 2.0 * M_PI * cw_df / m_srate;
@@ -124,7 +124,7 @@ static int tdc_in  =  0 ;
 static int tdc_out =  0 ;
 
 void resetTxDotQueue() {
-    txOn_DnCntr   =  0; 
+    txOn_DnCntr   =  0;
     txOffDnCntr   =  1;
     tx_key_down_1 =  0;		// reset in hl2_tcp.c
     tx_key_down_0 =  0;
@@ -169,7 +169,7 @@ int getNextTxDotCommand() {
         resetTxDotQueue() ;
 	on =  0;
     } else {
-        txOn_DnCntr =  on ; 
+        txOn_DnCntr =  on ;
         txOffDnCntr =  off;
     }
     if (on < 0) { on = 0; }
@@ -202,15 +202,15 @@ void tx_block_setup(int seqN) {
     tx_dph = 2.0 * M_PI * cw_df / m_srate;
 
 #ifdef NO_MODULO
-    skip_modulo = 1;	// 
+    skip_modulo = 1;	//
 #endif
     if (((seqN + 0) % skip_modulo) == 0) {
         save_tx_ph      =  tx_ph ;	    // save starting phase
-        save_ditherIdx  =  ditherIdx ; 
+        save_ditherIdx  =  ditherIdx ;
     } else {
         tx_ph           =  save_tx_ph ;	    // repeat last tx IQ phase
 	ditherIdx       =  save_ditherIdx;
-    }	
+    }
 }
 
 void get_tx_sample(int *tx_i, int *tx_q)
@@ -225,7 +225,7 @@ void get_tx_sample(int *tx_i, int *tx_q)
     } else if (txOffDnCntr > 0) {
         txOffDnCntr -= 1;
         if (txOffDnCntr <= 0) {
-	    int t =  getNextTxDotCommand();  
+	    int t =  getNextTxDotCommand();
 	    if (t > 0) { 		// getCmd sets txOn_DnCntr =  t;
 	        tx_key_down_0 =  1;
 	    } else {
@@ -243,7 +243,7 @@ void get_tx_sample(int *tx_i, int *tx_q)
     if ((tx_key_down_1 == 1) || (txFallCntr > 0)) {
 	float x =  cosf(tx_ph);
 	float y =  sinf(tx_ph);
-	tx_ph += tx_dph;			// 
+	tx_ph += tx_dph;			//
 	if (       tx_ph >  2.0f * (float)M_PI) {
 	           tx_ph -= 2.0f * (float)M_PI;
 	} else if (tx_ph < -2.0f * (float)M_PI) {
@@ -252,13 +252,13 @@ void get_tx_sample(int *tx_i, int *tx_q)
 
 	float w = 1.0;
 	// rise time taper
-	if (txRiseCntr >  0) { 
-	    w *=  txRiseWin[255 - txRiseCntr] ; 
-	    txRiseCntr -= 1; 
+	if (txRiseCntr >  0) {
+	    w *=  txRiseWin[255 - txRiseCntr] ;
+	    txRiseCntr -= 1;
 	}
 	if (txFallCntr >  0) {
-	    w *=  txRiseWin[txFallCntr] ; 
-	    txFallCntr -= 1; 
+	    w *=  txRiseWin[txFallCntr] ;
+	    txFallCntr -= 1;
 	}
 	// w = 1.0;
 
@@ -274,14 +274,14 @@ void get_tx_sample(int *tx_i, int *tx_q)
 	if (tx_q != NULL) { *tx_q =  0; }
 #else
 	if (tx_i != NULL) { *tx_i =  floor(0.499 + x2); }
-	if (tx_q != NULL) { *tx_q =  floor(0.499 + y2); } 	// 
+	if (tx_q != NULL) { *tx_q =  floor(0.499 + y2); } 	//
 #endif
     }
     last_key_down  =  tx_key_down_1 ;
     tx_counter    +=  1;
 }
 
-int get_tx_drive() 
+int get_tx_drive()
 {
 #ifdef TX_DISABLE
     return(0);

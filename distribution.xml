@@ -12,5 +12,5 @@
     <choice id="hl2_tcp" visible="false">
         <pkg-ref id="hl2_tcp"/>
     </choice>
-    <pkg-ref id="hl2_tcp" version="0" onConclusion="none">hl2_tcp-1.4.105-macos12-L.pkg</pkg-ref>
+    <pkg-ref id="hl2_tcp" version="0" onConclusion="none">hl2_tcp-1.4.108-macos12-L.pkg</pkg-ref>
 </installer-gui-script>

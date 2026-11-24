@@ -9,7 +9,7 @@
 # make -f ../Makefile-macOS [hl2_tcp|dmg|pkg|all|clean]
 
 EXECUTABLE      = hl2_tcp
-VERSION         = 1.4.105
+VERSION         = 1.4.108
 MACOS           = macos12
 PROFILE         = "SDR"
 
